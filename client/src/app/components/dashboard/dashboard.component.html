@@ -1,0 +1,19 @@
+<div class="home nav-{{ transmissionService.userDetails.instance }}">
+  <div class="ui container">
+    <div class="ui five centered center aligned container cards">
+      <a class="ui card" *ngFor="let item of sidebar" routerLink="/{{ item.link }}" routerLinkActive="active">
+        <mat-icon color="{{ transmissionService.getInstanceColor() }}">{{ item.icon }}</mat-icon>
+        <div class="extra content">
+          <h4>{{ item.name }}</h4>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert danger">
+    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+    <div class="alert-header">
+      {{ error }}
+    </div>
+  </div>
+</div>

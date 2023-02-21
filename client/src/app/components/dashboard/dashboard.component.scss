@@ -1,0 +1,29 @@
+mat-icon {
+  font-size: 6rem;
+  height: 100%;
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+h4 {
+  font: 500 20px/32px Roboto, 'Helvetica Neue', sans-serif;
+}
+.cards {
+  margin-top: 6vh;
+}
+.card {
+  cursor: pointer;
+}
+.card:focus {
+  outline: 0;
+}
+
+.home {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100%;
+  clip-path: polygon(0 0, 100% 0%, 100% 90%, 0% 100%);
+}

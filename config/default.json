@@ -1,0 +1,12 @@
+{
+  "db": "mongodb+srv://AAInternalDengine:Accels@123@cluster0-xzigw.mongodb.net/upload-tool-dev",
+  "devInstanceURL": "https://otmgtm-test-accelalpha1.otmgtm.uk-london-1.ocs.oraclecloud.com",
+  "testInstanceURL": "http://otmgtm643.accelalpha.com:7779",
+  "prodInstanceURL": "http://otmgtm643.accelalpha.com:7779",
+  "gtmVersion": 6.4,
+  "currentInstance": "dev",
+  "subsciption": "Item, party, transaction",
+  "isClient": true,
+  "schemaURI": "",
+  "clientToken": ""
+}

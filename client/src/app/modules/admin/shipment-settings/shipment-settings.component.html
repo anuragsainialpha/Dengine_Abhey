@@ -1,0 +1,22 @@
+<div class="p-24px">
+  <app-settings
+    *ngIf="!error"
+    [newItemProps]="shipmentProps"
+    [showLoader]="showLoader"
+    [filters]="filters"
+    [count]="count"
+    [itemsPerPage]="itemsPerPage"
+    (parentcountItems)="countItems($event)"
+    (parentfilterItems)="filterItems($event)"
+    (parentonSearch)="onSearch($event)"
+    (parentonChange)="onChange($event)"
+    [elements]="adminService.shipmentProps"
+  ></app-settings>
+
+  <div *ngIf="error" class="alert-setting danger">
+    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+    <div class="alert-header">
+      {{ error }}
+    </div>
+  </div>
+</div>

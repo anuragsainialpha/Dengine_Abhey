@@ -1,0 +1,97 @@
+<ng-container *ngIf="sidebar.length">
+  <mat-toolbar class="nav-{{ transmissionService.userDetails.instance }}">
+    <mat-toolbar-row>
+      <button
+        *ngIf="transmissionService.showSidebar"
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+      >
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+
+      <button disabled type="button" *ngIf="!transmissionService.showSidebar" mat-icon-button>
+        <mat-icon></mat-icon>
+      </button>
+
+      <span class="example-spacer">
+        <button routerLink="/dashboard" mat-button>
+          <h3 class="dengine-label">
+            Dengine
+            <span style="font-size: 12px">({{ transmissionService.userDetails.instance.toLocaleUpperCase() }})</span>
+          </h3>
+        </button>
+      </span>
+
+      <span style="margin-right: 20px"
+        ><small matBadgeOverlap="false" matBadge="{{ transmissionService.userDetails.role[0] }}" matBadgeColor="warn">{{
+          transmissionService.userDetails.name
+        }}</small>
+      </span>
+      <button (click)="logOut()" mat-icon-button>
+        <mat-icon>exit_to_app</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <mat-sidenav-container autosize class="sidenav-container">
+    <mat-sidenav
+      [ngClass]="!isMiniSidebar ? 'sidenav-mini' : 'sidenav'"
+      #drawer
+      fixedInViewport="false"
+      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+      [mode]="(isHandset$ | async) ? 'side' : 'side'"
+      [opened]="transmissionService.showSidebar"
+    >
+      <mat-list>
+        <mat-list-item role="list">
+          <a matLine></a>
+          <button (click)="isMiniSidebar = !isMiniSidebar" mat-stroked-button mat-icon-button>
+            <mat-icon *ngIf="isMiniSidebar">arrow_left</mat-icon>
+            <mat-icon *ngIf="!isMiniSidebar">arrow_right</mat-icon>
+          </button>
+        </mat-list-item>
+      </mat-list>
+      <mat-nav-list>
+        <ng-container *ngFor="let link of sidebar">
+          <a
+            matTooltip="{{ link.name }}"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isMiniSidebar"
+            *ngIf="link.display"
+            mat-list-item
+            routerLink="/{{ link.link }}"
+            routerLinkActive="nav-active"
+          >
+            <a *ngIf="isMiniSidebar" matLine>{{ link.name }}</a>
+            <button [color]="transmissionService.getInstanceColor()" mat-icon-button>
+              <mat-icon>{{ link.icon }}</mat-icon>
+            </button>
+          </a>
+        </ng-container>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <mat-toolbar *ngIf="isSettingsNavVisible" class="settings-nav">
+        <mat-toolbar-row class="settings-nav-row">
+          <button
+            *ngFor="let settingsLink of settingsSidebar"
+            routerLinkActive="nav-active"
+            routerLink="/admin/settings/{{ settingsLink.link }}"
+            mat-button
+          >
+            <mat-icon>{{ settingsLink.icon }}</mat-icon> <span> {{ settingsLink.name }}</span>
+          </button>
+        </mat-toolbar-row>
+      </mat-toolbar>
+
+      <mat-card [ngClass]="isSettingsNavVisible ? 'nav-content-card_settings' : 'nav-content-card'" class="br-0">
+        <div *ngIf="showLoadingIndicator" class="ui active inverted dimmer">
+          <mat-spinner [color]="transmissionService.getInstanceColor()"></mat-spinner>
+        </div>
+        <router-outlet></router-outlet>
+      </mat-card>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</ng-container>

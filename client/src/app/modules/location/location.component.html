@@ -1,0 +1,30 @@
+<ng-container *ngIf="!error">
+  <mat-tab-group dynamicHeight [color]="transmissionService.getInstanceColor()">
+    <mat-tab label="Download Template">
+      <app-shared-tab [itemService]="locationService" [tabTitle]="'Location'" [isAdminTab]="false"></app-shared-tab>
+    </mat-tab>
+    <mat-tab label="Create Template">
+      <app-shared-tab [itemService]="locationService" [tabTitle]="'Location'" [isAdminTab]="true"></app-shared-tab>
+    </mat-tab>
+  </mat-tab-group>
+  <div *ngIf="locationService.loader.d" class="ui active inverted dimmer">
+    <h2 class="example-h2">{{ locationService.uploadProgress }} %</h2>
+    <mat-progress-bar
+      [color]="transmissionService.getInstanceColor()"
+      style="width:50%"
+      [bufferValue]="locationService.uploadProgress + 20"
+      mode="buffer"
+      [value]="locationService.uploadProgress"
+    ></mat-progress-bar>
+  </div>
+  <div *ngIf="locationService.loader.i" class="ui active inverted dimmer">
+    <div class="ui text loader">Loading</div>
+  </div>
+</ng-container>
+
+<div *ngIf="error" class="alert danger">
+  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  <div class="alert-header">
+    {{ error }}
+  </div>
+</div>

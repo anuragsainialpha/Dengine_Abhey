@@ -1,0 +1,130 @@
+<div *ngIf="showLoader" class="ui active inverted dimmer">
+  <mat-spinner [color]="transmissionService.getInstanceColor()"></mat-spinner>
+</div>
+<ng-container *ngIf="!showLoader">
+  <ng-container *ngIf="filters.length > 0">
+    <div class="settings-filters">
+      <mat-form-field>
+        <mat-label>Filter by tag</mat-label>
+        <mat-select #op (valueChange)="filterItems(op)">
+          <mat-option *ngFor="let item of filters" [value]="item">
+            {{ item }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      &nbsp;&nbsp;
+      <div class="settings-search-form">
+        <mat-form-field class="settings-search-form-field">
+          <input #term (input)="onSearch(term.value)" name="term" matInput placeholder="Search" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="mb-5px"></div>
+  </ng-container>
+  <table *ngIf="elements.length > 0 && !showLoader" class="ui basic very compact celled small fixed table">
+    <thead>
+      <tr class="center aligned">
+        <!-- <th class="one wide">No</th> -->
+        <th class="three wide">Name</th>
+        <th class="three wide">Display Text</th>
+        <th class="one wide">Default Value</th>
+        <th class="one wide">Display</th>
+        <th class="two wide">Mandatory</th>
+        <th class="five wide">
+          Other
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container
+        *ngFor="let item of elements | paginate: { itemsPerPage: itemsPerPage, currentPage: p }; let i = index"
+      >
+        <tr *ngIf="!item.name.includes('TransactionCode') && !item.name.includes('DomainName')" class="center aligned">
+          <!-- <td>
+            {{ count + i + 1 }}
+          </td> -->
+          <td class="left aligned" style="padding-left: 25px;" title="{{ item.type }}">
+            {{ item.name }}
+          </td>
+          <td>
+            <div class="ui mini fluid input">
+              <input (input)="onChange(item)" [(ngModel)]="item.displayText" type="text" name="disaplyText" />
+            </div>
+          </td>
+          <td>
+            <div class="ui mini fluid input">
+              <input
+                [disabled]="item.name.includes('TransactionCode')"
+                (change)="onChange(item)"
+                [(ngModel)]="item.defaultValue"
+                type="text"
+                name="defaultValue"
+              />
+            </div>
+          </td>
+          <td>
+            <mat-checkbox
+              [disabled]="item.name.includes('TransactionCode')"
+              *ngIf="!item?.isMandatory"
+              (change)="onChange(item)"
+              [(ngModel)]="item.display"
+              name="itemdisplay"
+              color="{{ transmissionService.getInstanceColor() }}"
+            >
+            </mat-checkbox>
+            <mat-checkbox
+              *ngIf="item?.isMandatory"
+              (change)="onChange(item)"
+              [checked]="true"
+              disabled
+              name="itemdisplay"
+              color="{{ transmissionService.getInstanceColor() }}"
+            >
+            </mat-checkbox>
+          </td>
+          <td>
+            <mat-checkbox
+              [disabled]="item.name.includes('TransactionCode')"
+              (change)="onChange(item)"
+              name="itemdisabled"
+              [(ngModel)]="item.disabled"
+              color="{{ transmissionService.getInstanceColor() }}"
+            >
+            </mat-checkbox>
+          </td>
+          <td *ngIf="item.path.length === 1">-</td>
+          <td *ngIf="item.path.length > 1">
+            <div class="ui fluid centered grid">
+              <ng-container *ngFor="let prop of item.path; let i = index">
+                <div class="four wide column" *ngIf="i > 0 && i < item.path.length - 1">
+                  <div class="ui mini fluid input">
+                    <input
+                      (input)="onChange(item)"
+                      [(ngModel)]="prop.value"
+                      type="text"
+                      name="value"
+                      [disabled]="prop.path.includes('DomainName')"
+                      placeholder="{{ prop.path.split('.')[prop.path.split('.').length - 1] }}"
+                    />
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+    <tfoot class="full-width">
+      <tr>
+        <th colspan="7">
+          <pagination-controls
+            class="{{ transmissionService.getInstanceClass() }}"
+            style="text-align: center;"
+            (pageChange)="countItems($event)"
+            (pageChange)="p = $event"
+          ></pagination-controls>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+</ng-container>

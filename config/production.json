@@ -1,0 +1,12 @@
+{
+  "db": "dengine_db",
+  "devInstanceURL": "dengine_devInstanceURL",
+  "testInstanceURL": "dengine_testInstanceURL",
+  "prodInstanceURL": "dengine_prodInstanceURL",
+  "gtmVersion": "dengine_gtmVersion",
+  "currentInstance": "dengine_currentInstance",
+  "subsciption": "dengine_subsciption",
+  "isClient": "dengine_is_client",
+  "schemaURI": "dengine_schemaURI",
+  "clientToken": "dengine_clientToken"
+}

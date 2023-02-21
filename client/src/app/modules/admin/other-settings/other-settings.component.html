@@ -1,0 +1,70 @@
+<div class="p-24px">
+  <br /><br />
+  <mat-accordion>
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h4>Instance</h4>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="example-container">
+        <br />
+        <mat-form-field [color]="transmissionService.getInstanceColor()">
+          <input
+            matInput
+            disabled
+            placeholder="URL"
+            name="dev"
+            [value]="transmissionService.setting.url"
+            required
+          /> </mat-form-field
+        ><br />
+        <div style="display: flex;">
+          <mat-form-field style="width: 150px;" [color]="transmissionService.getInstanceColor()">
+            <input
+              type="text"
+              disabled
+              matInput
+              placeholder="GTM/OTM Version"
+              name="version"
+              value="{{ transmissionService.setting.version }}"
+              required
+            />
+          </mat-form-field>
+          <div style="width: 50px;"></div>
+          <br />
+          <mat-form-field [color]="transmissionService.getInstanceColor()" style="width: 300px;">
+            <input
+              type="number"
+              min="1"
+              max="500"
+              matInput
+              placeholder="Maximum No of Objects/Transmission"
+              name="glogPerTrx"
+              [(ngModel)]="data['glogPerTrx']"
+              required
+            />
+          </mat-form-field>
+        </div>
+      </div>
+      <button
+        (click)="onSubmit()"
+        [disabled]="transmissionService.setting.glogPerTrx < 1 || transmissionService.setting.glogPerTrx > 500"
+        color="{{ transmissionService.getInstanceColor() }}"
+        mat-raised-button
+      >
+        Submit
+      </button>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <div *ngIf="loading" class="ui active inverted dimmer">
+    <mat-spinner [color]="transmissionService.getInstanceColor()"></mat-spinner>
+  </div>
+</div>
+
+<div *ngIf="error" class="alert-setting danger">
+  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  <div class="alert-header">
+    {{ error }}
+  </div>
+</div>

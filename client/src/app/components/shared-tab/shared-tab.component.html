@@ -1,0 +1,456 @@
+<div class="p-24px" *ngIf="!hasChild">
+  <br /><br />
+  <ng-container *ngIf="itemService.errors.server">
+    <div class="alert danger">
+      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+      <div class="alert-header">
+        {{ itemService.errors.server }}
+      </div>
+    </div>
+    <br />
+  </ng-container>
+  <div *ngIf="itemService.dragdropList.length > 0 && !showMessage">
+    <div class="ui icon message">
+      <i class="file excel outline icon"></i>
+      <div class="content">
+        <div class="header">{{ tabTitle }} Template Header</div>
+        <p>You can drag and drop header content to change the sequence.</p>
+      </div>
+    </div>
+    <mat-card class="p-0">
+      <div
+        cdkDropList
+        cdkDropListOrientation="horizontal"
+        class="drag-drop-container"
+        (cdkDropListDropped)="itemService.drop($event)"
+      >
+        <div class="drag-drop-item" *ngFor="let list of itemService.dragdropList" cdkDrag>
+          {{ list.displayText }}
+        </div>
+      </div>
+    </mat-card>
+    <ng-container *ngIf="isAdminTab">
+      <br />
+      <mat-card>
+        <div class="ui stackable grid">
+          <div class="three column row">
+            <ng-container>
+              <div class="column" *ngFor="let List of itemService.ElementList">
+                <button mat-flat-button type="button">
+                  <mat-checkbox
+                    color="{{ transmissionService.getInstanceColor() }}"
+                    [disabled]="List.disabled"
+                    [(ngModel)]="List.required"
+                    (change)="itemService.valueChange(List)"
+                    >{{ List.displayText }}</mat-checkbox
+                  >
+                </button>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </mat-card>
+    </ng-container>
+  </div>
+  <ng-container *ngIf="!isAdminTab">
+    <br />
+    <br />
+    <div>
+      <button
+        (click)="transmissionService.generateCsv(tabTitle, itemService.dragdropList)"
+        suiPopup
+        popupText="Download CSV Template"
+        type="button"
+        mat-stroked-button
+        class="button_mr-10"
+      >
+        <mat-icon inline>save_alt</mat-icon>
+        Download Template
+      </button>
+      <input (change)="onUpload($event)" style="display: none" type="file" accept=".csv,.xlsx,.xls,.xlsm" #fileInput />
+      <button
+        class="button_mr-10"
+        (click)="fileInput.click()"
+        suiPopup
+        popupText=" Click to select a CSV"
+        type="button"
+        mat-stroked-button
+      >
+        <mat-icon inline>open_in_browser</mat-icon>
+        Select File
+      </button>
+      <button *ngIf="itemService.xmlArray.length > 0" (click)="itemService.sendDataToGtm()" class="ui button">
+        <i class="upload icon"></i>Upload CSV
+      </button>
+      <button *ngIf="itemService.xmlArray.length === 0" class="ui disabled button">
+        <i class="upload icon"></i>Upload CSV
+      </button>
+      <br />
+      <br />
+    </div>
+
+    <ng-container *ngIf="itemService.errors.csv.length">
+      <div class="ui error message">
+        <div class="header">
+          There were some errors with your submission
+        </div>
+        <ul class="list">
+          <li *ngFor="let error of itemService.errors.csv">{{ error }}</li>
+        </ul>
+      </div>
+      <br />
+    </ng-container>
+
+    <ng-container *ngIf="itemService.showStatus">
+      <div class="alert info">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        <div class="alert-header">
+          {{ tabTitle }} attempted :
+          {{
+            itemService.statusCount.p +
+              itemService.statusCount.e +
+              itemService.statusCount.f +
+              itemService.statusCount.s
+          }}
+        </div>
+        <div class="alert-body">
+          Processed : {{ itemService.statusCount.p }} , Error : {{ itemService.statusCount.e }} , Fresh :
+          {{ itemService.statusCount.f }} , Staged :
+          {{ itemService.statusCount.s }}
+        </div>
+      </div>
+    </ng-container>
+
+    <table
+      style="display: block;overflow: auto;"
+      *ngIf="itemService.csvHeader?.length > 0"
+      class="ui basic small celled fixed  table"
+    >
+      <thead>
+        <tr>
+          <th style="width:1%" *ngIf="itemService.csvHeader.length > 0">
+            No
+          </th>
+          <th
+            [ngClass]="item == 'Transmission' ? 'two wide' : 'one wide'"
+            *ngFor="let item of itemService.csvHeader; let i = index"
+          >
+            <div class="transmission_column">
+              <span> {{ item }}</span>
+              <span
+                ><a
+                  *ngIf="item == 'Transmission'"
+                  class="circular small basic ui icon button"
+                  (click)="itemService.onRefreshStatus()"
+                >
+                  <i class="exchange icon"></i> </a
+              ></span>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="
+            let item of itemService.csvRow | paginate: { itemsPerPage: itemsPerPage, currentPage: pg };
+            let i = index
+          "
+        >
+          <td>{{ count + i + 1 }}</td>
+          <td
+            class="two wide"
+            [ngClass]="{ negative: !item }"
+            *ngFor="let data of itemService.csvHeader; let indice = index"
+          >
+            <ng-container *ngIf="item[indice] && !item[indice].toString().includes('$$$')">{{
+              item[indice]
+            }}</ng-container>
+            <div class="transmission_column" *ngIf="item[indice] && item[indice].toString().includes('$$$')">
+              <span>{{ item[indice]?.split('$$$')[0] }}</span>
+              <span [ngStyle]="{ color: transmissionService.getStatusColor(item[indice]?.split('$$$')[1]) }">{{
+                item[indice]?.split('$$$')[1]
+              }}</span>
+              <span>
+                <a
+                  class="circular small basic ui icon button"
+                  (click)="openNewWindow(item[indice]?.split('$$$')[2])"
+                  *ngIf="item[indice]?.split('$$$')[2]"
+                >
+                  <i class="linkify icon"></i
+                ></a>
+                <a
+                  (click)="openNewWindow(item[indice]?.split('$$$')[3])"
+                  class="circular small basic ui icon button"
+                  *ngIf="item[indice]?.split('$$$')[3]"
+                >
+                  <i class="edit icon"></i
+                ></a>
+              </span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="itemService.csvRow.length">
+      <div [attr.colspan]="itemService.csvHeader.length + 1">
+        <pagination-controls
+          class="{{ transmissionService.getInstanceClass() }}"
+          style="text-align: center"
+          (pageChange)="countItems($event)"
+          (pageChange)="pg = $event"
+        >
+        </pagination-controls>
+      </div>
+    </div>
+  </ng-container>
+</div>
+<!-- ------------------------------- OBJECTS WITH CHILD LINES -------------------------------------------------------- -->
+<ng-container *ngIf="hasChild">
+  <ng-container *ngIf="itemService.errors.server">
+    <div class="alert danger">
+      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+      <div class="alert-header">
+        {{ itemService.errors.server }}
+      </div>
+    </div>
+    <br />
+  </ng-container>
+  <mat-vertical-stepper class="{{ transmissionService.getInstanceClass() }}">
+    <mat-step label="{{ tabTitle }}">
+      <div class="ui icon message">
+        <i class="file excel outline icon"></i>
+        <div class="content">
+          <div class="header">{{ tabTitle }} Template Header</div>
+          <p>You can drag and drop header content to change the sequence.</p>
+        </div>
+      </div>
+      <mat-card class="p-0">
+        <div
+          cdkDropList
+          cdkDropListOrientation="horizontal"
+          class="drag-drop-container"
+          (cdkDropListDropped)="itemService.releasedrop($event)"
+        >
+          <div class="drag-drop-item" *ngFor="let list of itemService.releasedragdropList" cdkDrag>
+            {{ list.displayText }}
+          </div>
+        </div> </mat-card
+      ><br />
+      <mat-card *ngIf="isAdminTab">
+        <div class="ui stackable grid">
+          <div class="three column row">
+            <ng-container>
+              <div class="column" *ngFor="let List of itemService.releaseElementList">
+                <button mat-flat-button type="button">
+                  <mat-checkbox
+                    color="{{ transmissionService.getInstanceColor() }}"
+                    [disabled]="List.disabled"
+                    [(ngModel)]="List.required"
+                    (change)="itemService.releaseValueChange(List)"
+                    >{{ List.displayText }}</mat-checkbox
+                  >
+                </button>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </mat-card>
+    </mat-step>
+    <mat-step label="{{ tabTitle }} {{ tabTitleExtension }}">
+      <div class="ui icon message">
+        <i class="file excel outline icon"></i>
+        <div class="content">
+          <div class="header">{{ tabTitle }} {{ tabTitleExtension }} Template Header</div>
+          <p>You can drag and drop header content to change the sequence.</p>
+        </div>
+      </div>
+      <mat-card class="p-0">
+        <div
+          cdkDropList
+          cdkDropListOrientation="horizontal"
+          class="drag-drop-container"
+          (cdkDropListDropped)="itemService.linedrop($event)"
+        >
+          <div class="drag-drop-item" *ngFor="let list of itemService.linedragdropList" cdkDrag>
+            {{ list.displayText }}
+          </div>
+        </div> </mat-card
+      ><br />
+      <mat-card *ngIf="isAdminTab">
+        <div class="ui stackable grid" *ngIf="isAdminTab">
+          <div class="three column row">
+            <ng-container>
+              <div class="column" *ngFor="let List of itemService.lineElementList">
+                <button mat-flat-button type="button">
+                  <mat-checkbox
+                    color="{{ transmissionService.getInstanceColor() }}"
+                    [disabled]="List.disabled"
+                    [(ngModel)]="List.required"
+                    (change)="itemService.lineValueChange(List)"
+                    >{{ List.displayText }}</mat-checkbox
+                  >
+                </button>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </mat-card>
+    </mat-step>
+  </mat-vertical-stepper>
+
+  <div class="p-24px">
+    <br />
+    <br />
+    <ng-container *ngIf="!isAdminTab">
+      <div>
+        <button
+          (click)="transmissionService.generateCsv(tabTitle, itemService.dragdropList)"
+          suiPopup
+          popupText="Download CSV Template"
+          type="button"
+          mat-stroked-button
+          class="button_mr-10"
+        >
+          <mat-icon inline>save_alt</mat-icon>
+          Download Template
+        </button>
+        <input
+          (change)="onUpload($event)"
+          style="display: none"
+          type="file"
+          accept=".csv,.xlsx,.xls,.xlsm"
+          #fileInput
+        />
+        <button
+          class="button_mr-10"
+          (click)="fileInput.click()"
+          suiPopup
+          popupText=" Click to select a CSV"
+          type="button"
+          mat-stroked-button
+        >
+          <mat-icon inline>open_in_browser</mat-icon>
+          Select File
+        </button>
+        <button *ngIf="itemService.xmlArray.length > 0" (click)="itemService.sendDataToGtm()" class="ui button">
+          <i class="upload icon"></i>Upload CSV
+        </button>
+        <button *ngIf="itemService.xmlArray.length === 0" class="ui disabled button">
+          <i class="upload icon"></i>Upload CSV
+        </button>
+        <br />
+        <br />
+      </div>
+
+      <ng-container *ngIf="itemService.errors.csv.length">
+        <div class="ui error message">
+          <div class="header">
+            There were some errors with your submission
+          </div>
+          <ul class="list">
+            <li *ngFor="let error of itemService.errors.csv">{{ error }}</li>
+          </ul>
+        </div>
+        <br />
+      </ng-container>
+
+      <ng-container *ngIf="itemService.showStatus">
+        <div class="alert info">
+          <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+          <div class="alert-header">
+            {{ tabTitle }} attempted :
+            {{
+              itemService.statusCount.p +
+                itemService.statusCount.e +
+                itemService.statusCount.f +
+                itemService.statusCount.s
+            }}
+          </div>
+          <div class="alert-body">
+            Processed : {{ itemService.statusCount.p }} , Error : {{ itemService.statusCount.e }} , Fresh :
+            {{ itemService.statusCount.f }} , Staged :
+            {{ itemService.statusCount.s }}
+          </div>
+        </div>
+      </ng-container>
+
+      <table
+        style="display: block;overflow: auto;"
+        *ngIf="itemService.csvHeader?.length > 0"
+        class="ui basic small celled fixed  table"
+      >
+        <thead>
+          <tr>
+            <th style="width:1%" *ngIf="itemService.csvHeader.length > 0">
+              No
+            </th>
+            <th
+              [ngClass]="item == 'Transmission' ? 'two wide' : 'one wide'"
+              *ngFor="let item of itemService.csvHeader; let i = index"
+            >
+              <div class="transmission_column">
+                <span> {{ item }}</span>
+                <span
+                  ><a
+                    *ngIf="item == 'Transmission'"
+                    class="circular small basic ui icon button"
+                    (click)="itemService.onRefreshStatus()"
+                  >
+                    <i class="exchange icon"></i> </a
+                ></span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let item of itemService.csvRow | paginate: { itemsPerPage: itemsPerPage, currentPage: pg };
+              let i = index
+            "
+          >
+            <td>{{ count + i + 1 }}</td>
+            <td [ngClass]="{ negative: !item }" *ngFor="let data of itemService.csvHeader; let indice = index">
+              <div class="transmission_column" *ngIf="item[indice] && item[indice].toString().includes('$$$')">
+                <span>{{ item[indice]?.split('$$$')[0] }}</span>
+                <span [ngStyle]="{ color: transmissionService.getStatusColor(item[indice]?.split('$$$')[1]) }">{{
+                  item[indice]?.split('$$$')[1]
+                }}</span>
+                <span>
+                  <a
+                    class="circular small basic ui icon button"
+                    (click)="openNewWindow(item[indice]?.split('$$$')[2])"
+                    *ngIf="item[indice]?.split('$$$')[2]"
+                  >
+                    <i class="linkify icon"></i
+                  ></a>
+                  <a
+                    (click)="openNewWindow(item[indice]?.split('$$$')[3])"
+                    class="circular small basic ui icon button"
+                    *ngIf="item[indice]?.split('$$$')[3]"
+                  >
+                    <i class="edit icon"></i
+                  ></a>
+                </span>
+              </div>
+              <ng-container *ngIf="item[indice] && !item[indice].toString().includes('$$$')">{{
+                item[indice]
+              }}</ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="itemService.csvRow.length">
+        <div [attr.colspan]="itemService.csvHeader.length + 1">
+          <pagination-controls
+            class="{{ transmissionService.getInstanceClass() }}"
+            style="text-align: center"
+            (pageChange)="countItems($event)"
+            (pageChange)="pg = $event"
+          >
+          </pagination-controls>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</ng-container>

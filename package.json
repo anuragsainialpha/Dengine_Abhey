@@ -4,11 +4,11 @@
   "description": "A data automation app",
   "main": "index.js",
   "engines": {
-    "node": "16.16.0",
-    "npm": "9.4.2"
+    "node": "14.21.2",
+    "npm": "6.14.17"
   },
   "scripts": {
-    "start": "node build/index.bundle.js",
+    "start": "node buildlocal/index.bundle.js",
     "copy-xmls": "cpx \"src/XMLs/*\" build/XMLs/",
     "server:build": "npm run copy-xmls && tsc --watch",
     "server:run": "nodemon build/index.js",
